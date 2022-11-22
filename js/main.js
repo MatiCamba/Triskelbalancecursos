@@ -1,11 +1,56 @@
 // variable 
-
+const contenedorCursos = document.querySelector('#lista-cursos')
 const carrito = document.querySelector('#carrito')
+const contadorCarrito = document.querySelector('#contadorCarrito')
+const precioCarrito = document.querySelector('#precioTotal')
 const contenedorCarrito = document.querySelector('#lista-carrito tbody')
 const vaciaCarritoBtn = document.querySelector('#vaciar-carrito')
 const listaCursos = document.querySelector('#lista-cursos')
 let articulosCarrito = [];
 
+// Div Contenedor de Productos
+cursos.forEach( (cursos) => {
+    
+    const div = document.createElement('div')
+div.className = 'four columns'
+
+div.innerHTML = `
+
+    <div class="card">
+        <img src=${cursos.imagen} class="imagen-curso u-full-width">
+        <div class="info-card">
+            <h4>${cursos.titulo}</h4>
+            <p>${cursos.profesor}</p>
+            <img src=${cursos.calificacion} class="calificacion">
+            <p class="precio">$${cursos.precio}  <span class="u-pull-right ">$${cursos.descuento}</span></p>
+            <a href="#" class="u-full-width button-primary button input agregar-carrito" data-id="${cursos.id}">Agregar Al Carrito</a>
+        </div>
+    </div>
+
+`
+
+contenedorCursos.append(div)
+
+})
+// Cantidad de cursos en el carrito (circulo Rojo)
+const cantidadCursosCarrito = () => {
+    contadorCarrito.innerText  = articulosCarrito.length
+}
+
+// Precio total carrito (verificar)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const precioTotalCarrito = () => {
+
+    let total = 0
+
+    articulosCarrito.forEach((curso) => {
+        total += curso.precio
+    })
+
+    precioCarrito.innerText = total
+    
+}
+
+// ============== Eventos ==============//
 cargarEventlisteners ();
 function cargarEventlisteners () {
     listaCursos.addEventListener('click', agregarCurso)
@@ -14,23 +59,81 @@ function cargarEventlisteners () {
     // eliminar elementos del carrito
     carrito.addEventListener('click', eliminarCurso)
 
+    // Muestra los cursos de LocalStorage
+    document.addEventListener('DOMContentLoaded', () => {
+        articulosCarrito = JSON.parse( localStorage.getItem('carrito') || [])
+
+        carritoHTML()
+    } )
+
     // Vaciar Carrito
     vaciaCarritoBtn.addEventListener('click', () => {
-        articulosCarrito = [];
 
-        limpiarHTML();
+        // Modal Confirmar vaciar carrito
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+        
+        swalWithBootstrapButtons.fire({
+            title: 'Esta Seguro que desea Vaciar el Carrito',
+            text: "Perderas todo lo guardado",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Si, vaciar!',
+            cancelButtonText: 'No, cancelar!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                swalWithBootstrapButtons.fire(
+                'Borrado!',
+                'El Carrito esta vacio',
+                'success',
+                articulosCarrito = [],
+                limpiarHTML(),
+                                
+            )
+            } else if (
+              /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire(
+                'Cancelado',
+                'Tus cursos siguen en el carrito :)',
+                'error'
+                )
+            }
+        })
+
+        
+
+        
     })
 }
 
 
 
-// Funcionas
-function agregarCurso(e) {
-    e.preventDefault();
+// ============== Funciones ==============//
 
-    if ( e.target.classList.contains('agregar-carrito')) {
-        const cursoElegido = e.target.parentElement.parentElement
+// Agregar curso al Carrito
+function agregarCurso(evento) {
+    evento.preventDefault();
+
+    if ( evento.target.classList.contains('agregar-carrito')) {
+        const cursoElegido = evento.target.parentElement.parentElement
         
+swal.fire({
+    icon:'success',
+    title:'Producto agregado al carrito',
+    toast: true,
+    timer: 1500,
+    showConfirmButton: false,
+    position: 'bottom-left'
+})
+
         leerDatosCurso(cursoElegido);
     }
 }
@@ -80,9 +183,10 @@ function leerDatosCurso (curso) {
     // Agrega al Carrito
     
 
-    console.log(articulosCarrito)
+//console.log(articulosCarrito)
 
     carritoHTML();
+    
 }
 
 // Incertar Articulo en Carrito
@@ -90,6 +194,8 @@ function carritoHTML() {
 
     // Limpia el Carrito
     limpiarHTML();
+    cantidadCursosCarrito()
+    precioTotalCarrito()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // Funcion Recorre Carrito
     articulosCarrito.forEach (curso => {
@@ -110,7 +216,7 @@ function carritoHTML() {
             ${curso.cantidad}
         </td>
         <td>
-            <a href="#" class="borrar-curso" data-id="${curso.id}" > X </a>
+            <a href="#" class="borrar-curso" data-id="${curso.id}"><i class="fa-solid fa-trash-can"></i></a>
         </td>
         `
 
@@ -118,6 +224,8 @@ function carritoHTML() {
         contenedorCarrito.appendChild(row);
     })
 
+    // Agregar el carrito del compras al storage
+    sincronizarStorage()
 
 }
 
@@ -125,3 +233,28 @@ function limpiarHTML() {
     contenedorCarrito.innerHTML = '';
 }
 
+function sincronizarStorage() {
+    localStorage.setItem('carrito', JSON.stringify(articulosCarrito))
+}
+
+
+
+
+/* ======= DARK MODE ============= */
+
+$(document).ready(function() {
+    $("#color_mode").on("change", function () {
+        colorModePreview(this);
+    })
+});
+
+function colorModePreview(ele) {
+    if($(ele).prop("checked") == true){
+        $('body').addClass('dark-preview');
+        $('body').removeClass('white-preview');
+    }
+    else if($(ele).prop("checked") == false){
+        $('body').addClass('white-preview');
+        $('body').removeClass('dark-preview');
+    }
+}
