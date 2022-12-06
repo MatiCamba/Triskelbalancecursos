@@ -22,13 +22,12 @@ div.innerHTML = `
             <h4>${cursos.titulo}</h4>
             <p>${cursos.profesor}</p>
             <img src=${cursos.calificacion} class="calificacion">
-            <p class="precio">$${cursos.precio}  <span class="u-pull-right ">$${cursos.descuento}</span></p>
+            <p class="precio">$${parseInt(cursos.precio)}  <span class="precio-descuento ">$${parseInt(cursos.descuento)}</span></p>
             <a href="#" class="u-full-width button-primary button input agregar-carrito" data-id="${cursos.id}">Agregar Al Carrito</a>
         </div>
     </div>
 
 `
-
 contenedorCursos.append(div)
 
 })
@@ -44,6 +43,7 @@ const precioTotalCarrito = () => {
 
     articulosCarrito.forEach((curso) => {
         total += curso.precio
+        console.log(curso.precio)
     })
 
     precioCarrito.innerText = total
@@ -62,7 +62,7 @@ function cargarEventlisteners () {
     // Muestra los cursos de LocalStorage
     document.addEventListener('DOMContentLoaded', () => {
         articulosCarrito = JSON.parse( localStorage.getItem('carrito') || [])
-
+        console.log(articulosCarrito)
         carritoHTML()
     } )
 
@@ -94,7 +94,8 @@ function cargarEventlisteners () {
                 'success',
                 articulosCarrito = [],
                 limpiarHTML(),
-                                
+                cantidadCursosCarrito()
+
             )
             } else if (
               /* Read more about handling dismissals below */
@@ -219,12 +220,12 @@ function carritoHTML() {
             <a href="#" class="borrar-curso" data-id="${curso.id}"><i class="fa-solid fa-trash-can"></i></a>
         </td>
         `
-
+        console.log(curso.precio)
         // Agrega el HTML del Acrrito al tbody
         contenedorCarrito.appendChild(row);
     })
 
-    // Agregar el carrito del compras al storage
+    // Agregar el carrito de compras al storage
     sincronizarStorage()
 
 }
