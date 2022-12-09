@@ -1,4 +1,5 @@
-// variable 
+
+let total = 0
 const contenedorCursos = document.querySelector('#lista-cursos')
 const carrito = document.querySelector('#carrito')
 const contadorCarrito = document.querySelector('#contadorCarrito')
@@ -6,11 +7,13 @@ const precioCarrito = document.querySelector('#precioTotal')
 const contenedorCarrito = document.querySelector('#lista-carrito tbody')
 const vaciaCarritoBtn = document.querySelector('#vaciar-carrito')
 const listaCursos = document.querySelector('#lista-cursos')
+const pagar = document.querySelector('#finalizar-compra')
 let articulosCarrito = [];
+
 
 // Div Contenedor de Productos
 cursos.forEach( (cursos) => {
-    
+
     const div = document.createElement('div')
 div.className = 'four columns'
 
@@ -22,33 +25,21 @@ div.innerHTML = `
             <h4>${cursos.titulo}</h4>
             <p>${cursos.profesor}</p>
             <img src=${cursos.calificacion} class="calificacion">
-            <p class="precio">$${parseInt(cursos.precio)}  <span class="precio-descuento ">$${parseInt(cursos.descuento)}</span></p>
-            <a href="#" class="u-full-width button-primary button input agregar-carrito" data-id="${cursos.id}">Agregar Al Carrito</a>
+            <p class="precio">$ ${parseInt(cursos.precio)}  <span class="precio-descuento ">$ ${parseInt(cursos.descuento)}</span></p>
+            <button class="button-add agregar-carrito" onclick="add(${cursos.id}, ${cursos.descuento})" data-id="${cursos.id}">Agregar al Carrito</button>
         </div>
     </div>
 
 `
 contenedorCursos.append(div)
-
 })
+
 // Cantidad de cursos en el carrito (circulo Rojo)
 const cantidadCursosCarrito = () => {
     contadorCarrito.innerText  = articulosCarrito.length
 }
 
-// Precio total carrito (verificar)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const precioTotalCarrito = () => {
 
-    let total = 0
-
-    articulosCarrito.forEach((curso) => {
-        total += curso.precio
-        console.log(curso.precio)
-    })
-
-    precioCarrito.innerText = total
-    
-}
 
 // ============== Eventos ==============//
 cargarEventlisteners ();
@@ -62,8 +53,9 @@ function cargarEventlisteners () {
     // Muestra los cursos de LocalStorage
     document.addEventListener('DOMContentLoaded', () => {
         articulosCarrito = JSON.parse( localStorage.getItem('carrito') || [])
-        console.log(articulosCarrito)
+        
         carritoHTML()
+        
     } )
 
     // Vaciar Carrito
@@ -108,10 +100,6 @@ function cargarEventlisteners () {
                 )
             }
         })
-
-        
-
-        
     })
 }
 
@@ -139,6 +127,24 @@ swal.fire({
     }
 }
 
+// Agrega el Precio al Carrito 
+function add(curso, precio){
+
+    //console.log(curso, precio)
+    //articulosCarrito.push(curso)
+    total = total + precio
+    document.querySelector('#precioTotal').innerHTML = `Precio Total: $${total}`
+
+    
+    carritoHTML();
+}
+
+/* function pay() {
+    window.alert(articulosCarrito.join(", \n"));
+} */
+
+console.log(articulosCarrito)
+
 // Elimina un curso
 function eliminarCurso (evento) {
 
@@ -153,41 +159,36 @@ function eliminarCurso (evento) {
 
 
 // contenido Curso
-function leerDatosCurso (curso) {
-    //console.log(curso)
+function leerDatosCurso (cursos) {
+    //console.log(cursos)
 
     // Objeto con el Contenido del Curso
     const infoCurso = {
-        imagen:curso.querySelector('img').src,
-        titulo: curso.querySelector('h4').textContent,
-        precio: curso.querySelector('.precio span').textContent,
-        id: curso.querySelector('a').getAttribute('data-id'),
+        imagen:cursos.querySelector('img').src,
+        titulo: cursos.querySelector('h4').textContent,
+        precio: cursos.querySelector('.precio span').textContent,
+        id: cursos.querySelector('button').getAttribute('data-id'),
         cantidad: 1
     }
+    console.log(infoCurso)
 
     // Elemento ya existe en el carrito
     const existe = articulosCarrito.some( curso => curso.id === infoCurso.id)
     if(existe) {
-        const cursos = articulosCarrito.map(curso => {
-            if( curso.id === infoCurso.id ) {
-                curso.cantidad++
-                return curso
+        const cursos = articulosCarrito.map(cursos => {
+            if( cursos.id === infoCurso.id ) {
+                cursos.cantidad++
+                return cursos
             } else {
-                return curso
+                return cursos
             }
         })
         articulosCarrito = [...cursos]
     } else {
         articulosCarrito = [...articulosCarrito, infoCurso]
     }
-
-    // Agrega al Carrito
     
-
-//console.log(articulosCarrito)
-
     carritoHTML();
-    
 }
 
 // Incertar Articulo en Carrito
@@ -196,31 +197,31 @@ function carritoHTML() {
     // Limpia el Carrito
     limpiarHTML();
     cantidadCursosCarrito()
-    precioTotalCarrito()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
 
     // Funcion Recorre Carrito
-    articulosCarrito.forEach (curso => {
+    articulosCarrito.forEach (cursos => {
     
         const row = document.createElement('tr')
 
         row.innerHTML = `
         <td>
-            <img src="${curso.imagen}" width="80">
+            <img src="${cursos.imagen}" width="80">
         </td>
         <td>
-            ${curso.titulo}
+            ${cursos.titulo}
         </td>
         <td>
-            ${curso.precio}
+            ${cursos.precio}
         </td>
         <td>
-            ${curso.cantidad}
+            ${cursos.cantidad}
         </td>
         <td>
-            <a href="#" class="borrar-curso" data-id="${curso.id}"><i class="fa-solid fa-trash-can"></i></a>
+            <a href="#" class="borrar-curso" data-id="${cursos.id}"><i class="fa-solid fa-trash-can"></i></a>
         </td>
         `
-        console.log(curso.precio)
+        
         // Agrega el HTML del Acrrito al tbody
         contenedorCarrito.appendChild(row);
     })
@@ -239,23 +240,46 @@ function sincronizarStorage() {
 }
 
 
+// Precio total carrito (verificar)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 /* ======= DARK MODE ============= */
 
-$(document).ready(function() {
-    $("#color_mode").on("change", function () {
-        colorModePreview(this);
-    })
-});
+const colorModeButton = document.querySelector("#color-mode");
+const body = document.body;
 
-function colorModePreview(ele) {
-    if($(ele).prop("checked") == true){
-        $('body').addClass('dark-preview');
-        $('body').removeClass('white-preview');
+colorModeButton.addEventListener("click", cambiarModoColor);
+function cambiarModoColor() {
+    body.classList.toggle("dark-mode");
+    if (body.classList.contains("dark-mode")) {
+        colorModeButton.innerText = "Light Mode";
+    } else {
+        colorModeButton.innerText = "Dark Mode";
     }
-    else if($(ele).prop("checked") == false){
-        $('body').addClass('white-preview');
-        $('body').removeClass('dark-preview');
+}
+
+/* ======= Input Descuento ============= */
+
+const agregarForm = document.querySelector("#agregar-form");
+const agregarInput = document.querySelector("#agregar-input");
+const agregar = document.querySelector("#agregar");
+
+agregarForm.addEventListener("submit", agregarDescuento);
+
+function agregarDescuento(e) {
+    e.preventDefault();
+
+    if (agregarInput.value != "" && agregarInput.value === "Camba10") {
+        let item = document.createElement("li");
+        item.innerText = agregarInput.value;
+        descuento = (precioCarrito*0.90)
+        agregar.append(item);
+        agregar.append(descuento);
+    } else if (agregarInput.value != "" && agregarInput.value != "Camba10") {
+        Swal.fire('Tu Codigo no tiene descuento')
+    } else {
+        Swal.fire('Agrega tu Codigo')
     }
+
+    agregarForm.reset();
 }
