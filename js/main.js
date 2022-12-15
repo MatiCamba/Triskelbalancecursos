@@ -8,6 +8,12 @@ const contenedorCarrito = document.querySelector('#lista-carrito tbody')
 const vaciaCarritoBtn = document.querySelector('#vaciar-carrito')
 const listaCursos = document.querySelector('#lista-cursos')
 const pagar = document.querySelector('#finalizar-compra')
+
+const agregarForm = document.querySelector("#agregar-form");
+const agregarInput = document.querySelector("#agregar-input");
+const agregar = document.querySelector("#agregar");
+
+
 let articulosCarrito = [];
 
 
@@ -50,12 +56,21 @@ function cargarEventlisteners () {
     // eliminar elementos del carrito
     carrito.addEventListener('click', eliminarCurso)
 
+    // Agregar Descuento
+    agregarForm.addEventListener("submit", agregarDescuento);
+
     // Muestra los cursos de LocalStorage
     document.addEventListener('DOMContentLoaded', () => {
         articulosCarrito = JSON.parse( localStorage.getItem('carrito') || [])
         
         carritoHTML()
         
+    } )
+
+    document.addEventListener('DOMContentLoaded', () => {
+        total = JSON.parse( localStorage.getItem('precio') || [])
+        
+        add(curso, precio)
     } )
 
     // Vaciar Carrito
@@ -136,8 +151,37 @@ function add(curso, precio){
     document.querySelector('#precioTotal').innerHTML = `Precio Total: $${total}`
 
     
+    console.log(total)
+    
     carritoHTML();
+    limpiarHTML()
 }
+
+
+
+function agregarDescuento(e) {
+    e.preventDefault();
+
+    let item = ""
+    
+    if (agregarInput.value != "" && agregarInput.value === "Camba10") {
+        item = document.createElement("li");
+        item.innerText = agregarInput.value;
+        descuento = (total*0.90)
+        agregar.append(item);
+        agregar.append(descuento);
+    } else if (agregarInput.value != "" && agregarInput.value != "Camba10") {
+        Swal.fire('Tu Codigo no tiene descuento')
+    } else {
+        Swal.fire('Agrega tu Codigo')
+    }
+
+    document.querySelector('#precioTotal').innerHTML = `Precio Total: $${descuento}`
+    agregarForm.reset();
+
+    
+}
+
 
 /* function pay() {
     window.alert(articulosCarrito.join(", \n"));
@@ -233,10 +277,12 @@ function carritoHTML() {
 
 function limpiarHTML() {
     contenedorCarrito.innerHTML = '';
+    
 }
 
 function sincronizarStorage() {
     localStorage.setItem('carrito', JSON.stringify(articulosCarrito))
+    localStorage.setItem('precio', JSON.stringify(total))
 }
 
 
@@ -259,27 +305,3 @@ function cambiarModoColor() {
 }
 
 /* ======= Input Descuento ============= */
-
-const agregarForm = document.querySelector("#agregar-form");
-const agregarInput = document.querySelector("#agregar-input");
-const agregar = document.querySelector("#agregar");
-
-agregarForm.addEventListener("submit", agregarDescuento);
-
-function agregarDescuento(e) {
-    e.preventDefault();
-
-    if (agregarInput.value != "" && agregarInput.value === "Camba10") {
-        let item = document.createElement("li");
-        item.innerText = agregarInput.value;
-        descuento = (precioCarrito*0.90)
-        agregar.append(item);
-        agregar.append(descuento);
-    } else if (agregarInput.value != "" && agregarInput.value != "Camba10") {
-        Swal.fire('Tu Codigo no tiene descuento')
-    } else {
-        Swal.fire('Agrega tu Codigo')
-    }
-
-    agregarForm.reset();
-}

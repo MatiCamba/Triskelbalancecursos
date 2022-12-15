@@ -423,9 +423,26 @@ body {
 
 body.dark-mode {
     background-color: #050505;
-    color: white;
 }
 
+body.dark-mode .btn {
+    background-color: azure;
+    color: black;
+}
+
+body.dark-mode h1 {
+    color:#E1E1E1
+}
+
+body.dark-mode .card{
+    background-color: black;
+    color:#E1E1E1;
+}
+
+body.dark-mode .agregar-carrito{
+    background-color:#f09138;
+    color: white;
+}
 /********************** Boton Whatapp **********************/
 .btn-whatsapp {
     position: fixed;
